@@ -2,7 +2,7 @@
 
 <p align="center"><img width="100%" src="img/animation.png" /></p>
 
-> **A Dual In-painting Model for Unsupervised Gaze Correction and Animation in the Wild**<br>
+> ***A Dual In-painting Model for Unsupervised Gaze Correction and Animation in the Wild***<br>
 > Jichao Zhang, Jingjing Chen, [Hao Tang](https://ha0tang.github.io/), [Wei Wang](https://weiwangtrento.github.io/), [Yan Yan](https://userweb.cs.txstate.edu/~y_y34/), [Enver Sangineto](https://disi.unitn.it/~enver.sangineto/index.html), [Nicu Sebe](http://disi.unitn.it/~sebe/)<br>
 > In ACMMM 2020.<br>
 
