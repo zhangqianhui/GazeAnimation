@@ -34,6 +34,13 @@ Python=3.6
 pip install -r requirments.txt
 
 ```
+Or Using Conda
+
+```bash
+-conda create -name GazeA python=3.6
+-conda install tensorflow-gpu=1.9
+```
+Other packages installed by pip.
 
 ## Usage
 
