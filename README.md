@@ -1,6 +1,6 @@
 ## GazeAnimation - Official Tensorflow Implementation
 
-<p align="center"><img width="100%" src="img/animation.jpg" /></p>
+<p align="center"><img width="100%" src="img/animation.png" /></p>
 
 > **A Dual In-painting Model for Unsupervised Gaze Correction and Animation in the Wild**<br>
 > Jichao Zhang, Jingjing Chen, [Hao Tang](https://ha0tang.github.io/), [Wei Wang](https://weiwangtrento.github.io/), [Yan Yan](https://userweb.cs.txstate.edu/~y_y34/), [Enver Sangineto](https://disi.unitn.it/~enver.sangineto/index.html), [Nicu Sebe](http://disi.unitn.it/~sebe/)<br>
@@ -23,8 +23,14 @@ To further preserve the identity information~(\eg, eye shape, iris color), we pr
 }
 ```
 
+## Network Architecture
+
+![](img/model.png)
+
 ## Dependencies
+
 ```bash
+Python=3.6
 pip install -r requirments.txt
 
 ```
@@ -83,12 +89,5 @@ bash scripts/test_log20_5_1.sh
 
 <p align="center"><img width="100%" src="img/results.jpeg" /></p>
 
-## Reference code
 
-- [StarGAN Pytorch](https://github.com/yunjey/StarGAN)
 
-- [GeneGAN tensorflow](https://github.com/Prinsphield/GeneGAN)
-
-- [DCGAN tensorflow](https://github.com/carpedm20/DCGAN-tensorflow)
-
-- [Spectral Norm tensorflow](https://github.com/taki0112/Spectral_Normalization-Tensorflow)
