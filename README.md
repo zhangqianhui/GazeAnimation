@@ -8,7 +8,7 @@
 
 > Paper: https://arxiv.org/abs/1805.07509<br>
 
-> **Abstract:** In this paper, we address the problem of unsupervised gaze correction in the wild that works without the need for precise annotations of the gaze angle and head pose. We have created a new NewGaze dataset which consists of two domains X, Y in which eyes are either staring at the camera or somewhere else. Our method consists of three novel modules: Gaze Correction module~(GCM), Gaze Animation module~(GAM), and Pretrained Autoencoder module~(PAM). Specifically, GCM and GAM separately trains a dual in-painting model using data from domain $X$ for gaze correction and data from domain Y for gaze animation. Additionally, a Synthesis-As-Training method is proposed when training GAM to encourage the features encoded from the eye region to be correlated with the angle information, resulting in gaze animation can be achieved by interpolation in the latent space. 
+> **Abstract:** In this paper, we address the problem of unsupervised gaze correction in the wild that works without the need for precise annotations of the gaze angle and head pose. We have created a new NewGaze dataset which consists of two domains X, Y in which eyes are either staring at the camera or somewhere else. Our method consists of three novel modules: Gaze Correction module~(GCM), Gaze Animation module~(GAM), and Pretrained Autoencoder module~(PAM). Specifically, GCM and GAM separately trains a dual in-painting model using data from domain X for gaze correction and data from domain Y for gaze animation. Additionally, a Synthesis-As-Training method is proposed when training GAM to encourage the features encoded from the eye region to be correlated with the angle information, resulting in gaze animation can be achieved by interpolation in the latent space. 
 To further preserve the identity information~(e.g., eye shape, iris color), we propose the PAM with an Autoencoder by Self-Supervised mirror learning whose bottleneck features are angle-invariant and work as an extra input to the dual in-painting models. Extensive experiments validate the effectiveness of our model in gaze correction and gaze animation in the wild and demonstrate the superiority of our method in producing more compelling results than state-of-the-art baselines..*
 
 ### Citation
@@ -43,29 +43,21 @@ git clone https://github.com/zhangqianhui/GazeAnimation.git
 cd Sparsely-Grouped-GAN
 
 ```
-- Download the CelebA dataset
 
-You can download the [CelebA dataset](https://www.dropbox.com/sh/8oqt9vytwxb3s4r/AAB06FXaQRUNtjW9ntaoPGvCa?dl=0) 
-and unzip CelebA into a directory. 
+- Download the NewGaze dataset
 
- Just like
- 
- ~~~
----------------------------------------------
+  Download the tar of NewGaze dataset from [Google Driver Linking](https://drive.google.com/open?id=1lYzpKdShN68RJGxRF1JgXnW-ved0F-mJ).
+  
+  ```bash
+  cd your_path
+  unzip NewGazeData.tar
+  ```
+  
+  Please edit the options.py to change your dataset path
 
-The training data folder should look like : 
-<base_dir/images/>
-                |--image1
-                |--image2
-                |--image3
-                |--image4...
-    
-list_attr_celeba.txt
+- Pretraining Model
 
----------------------------------------------
-~~~
-
-You can edit label_dir and data_dir in Baseoptions.txt and use the path for your CelebA dataset.
+You can edit label_dir and data_dir
 
 - Train the model using command line with python 
 ```bash
@@ -89,5 +81,7 @@ bash scripts/test_log20_5_1.sh
 
 <p align="center"><img width="100%" src="img/results.jpeg" /></p>
 
+# Reference code
 
+- [Sparsely_Grouped_GAN](https://github.com/zhangqianhui/Sparsely-Grouped-GAN)
 
