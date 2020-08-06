@@ -79,7 +79,14 @@ bash scripts/test_log20_5_1.sh
 
 ## Experiment Result 
 
-<p align="center"><img width="100%" src="img/results.jpeg" /></p>
+### Gaze Correction
+
+<p align="center"><img width="100%" src="img/correction.png" /></p>
+
+
+### Gaze Animation
+
+<p align="center"><img width="100%" src="img/correction.png" /></p>
 
 # Related Work
 
