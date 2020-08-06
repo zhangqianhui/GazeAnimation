@@ -50,10 +50,10 @@ cd Sparsely-Grouped-GAN
   
   ```bash
   cd your_path
-  unzip NewGazeData.tar
+  tar -xvf NewGazeData.tar
   ```
   
-  Please edit the options.py to change your dataset path
+  Please edit the options.py and change your dataset path
 
 - Pretraining Model
 
@@ -81,7 +81,9 @@ bash scripts/test_log20_5_1.sh
 
 <p align="center"><img width="100%" src="img/results.jpeg" /></p>
 
-# Reference code
+# Related Work
 
 - [Sparsely_Grouped_GAN](https://github.com/zhangqianhui/Sparsely-Grouped-GAN)
+
+- [GazeCorrection](https://github.com/zhangqianhui/GazeCorrection)
 
