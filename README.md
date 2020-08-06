@@ -40,7 +40,7 @@ pip install -r requirments.txt
 - Clone this repo:
 ```bash
 git clone https://github.com/zhangqianhui/GazeAnimation.git
-cd Sparsely-Grouped-GAN
+cd GazeAnimation
 
 ```
 
