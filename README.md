@@ -100,7 +100,6 @@ bash scripts/test_log20_5_1.sh
 ![](img/4.gif)
 ![](img/5.gif)
 ![](img/6.gif)
-![](img/7.gif)
 ![](img/9.gif)
 ![](img/10.gif)
 ![](img/11.gif)
@@ -112,7 +111,6 @@ bash scripts/test_log20_5_1.sh
 ![](img/17.gif)
 ![](img/18.gif)
 ![](img/19.gif)
-![](img/20.gif)
 
 
 # Related Work
