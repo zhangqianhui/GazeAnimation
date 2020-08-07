@@ -1,10 +1,12 @@
-import sys
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import os
-import glob
 import cv2
 import numpy as np
 
-faces_folder_path = '/data0/jzhang/dataset/ECCV/HQGazeDataNew/'
+faces_folder_path = './GazeDataNew/'
 mask_path = os.path.join(faces_folder_path, 'masks')
 txt_path = os.path.join(faces_folder_path, '0.txt')
 

@@ -1,3 +1,7 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from .options import BaseOptions
 
 class TrainOptions(BaseOptions):
@@ -32,8 +36,6 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--crop_w_p', type=int, default=180, help='the padding version for cropped size')
         parser.add_argument('--crop_h_p', type=int, default=128, help='the padding version for crooped size')
         parser.add_argument('--test_num', type=int, default=300, help='the number of test samples')
-        parser.add_argument('--use_RGAN', action='store_true', help='using RaGAN')
-        parser.add_argument('--lam_tv', type=float, default=0.0001, help='tv loss')
 
         self.isTrain = True
         return parser
