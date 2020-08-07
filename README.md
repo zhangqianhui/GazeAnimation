@@ -68,7 +68,7 @@ You can edit label_dir and data_dir
 
 - Train the model using command line with python 
 ```bash
-python train.py --exper_name='log20_5_1' --gpu_id='0' --loss_type='wgan_gp' --n_critic=5 --lam_c=10
+python train.py --use_sp --gpu_id='1' --exper_name='log3_28_1_17' --crop_w=50 --crop_h=30
 ```
 - Test the model
 ```bash
