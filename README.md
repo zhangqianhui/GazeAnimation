@@ -68,20 +68,20 @@ You can edit label_dir and data_dir
 
 - Train the model using command line with python 
 ```bash
-python train.py --use_sp --gpu_id='1' --exper_name='log3_28_1_17' --crop_w=50 --crop_h=30
+python train.py --use_sp --gpu_id='1' --exper_name='log8_7' --crop_w=50 --crop_h=30
 ```
 - Test the model
 ```bash
-python test.py --exper_name='log20_5_1' --gpu_id='0' 
+python test.py --exper_name='log8_7' --gpu_id='0' --crop_h=30 --crop_w=50 --test_sample_dir='test_sample_dir' --checkpoints='checkpoints'
 ```
 
 Or Using scripts for training 
 ```bash
-bash scripts/train_log20_5_1.sh
+bash scripts/train_log8_7.sh
 ```
 Using scripts for testing and pretained model can be downloaded [Pretrained Model](https://drive.google.com/file/d/1GYyGGQm06ahI0V4mBzSCaT1Fh4kzHb76/view?usp=sharing) 
 ```bash
-bash scripts/test_log20_5_1.sh
+bash scripts/test_log8_7.sh
 ```
 
 ## Experiment Result 
