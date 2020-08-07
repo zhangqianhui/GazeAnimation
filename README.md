@@ -93,9 +93,9 @@ bash scripts/test_log20_5_1.sh
 
 ### Gaze Animation
 
-![](img/0.gif) 
+![](img/0.gif)
+![](img/28.gif)
 ![](img/1.gif)
-![](img/2.gif)
 ![](img/3.gif)
 ![](img/4.gif)
 ![](img/5.gif)
@@ -111,6 +111,10 @@ bash scripts/test_log20_5_1.sh
 ![](img/17.gif)
 ![](img/18.gif)
 ![](img/19.gif)
+![](img/22.gif)
+![](img/23.gif)
+![](img/26.gif)
+![](img/29.gif)
 
 
 # Related Work
