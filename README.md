@@ -93,7 +93,7 @@ bash scripts/test_log20_5_1.sh
 
 ### Gaze Animation
 
-<p align="center"><img width="100%" src="img/correction.png" /></p>
+![](img/0.gif)
 
 # Related Work
 
