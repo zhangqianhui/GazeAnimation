@@ -52,7 +52,7 @@ cd GazeAnimation
 
 - Download the CelebAGaze dataset
 
-  Download the tar of CelebAGaze dataset from [Google Driver Linking](https://drive.google.com/open?id=1lYzpKdShN68RJGxRF1JgXnW-ved0F-mJ).
+  Download the tar of CelebAGaze dataset from [Google Driver Linking](https://drive.google.com/file/d/1_6f3wT72mQpu5S2K_iTkfkiXeeBcD3wn/view?usp=sharing).
   
   ```bash
   cd your_path
