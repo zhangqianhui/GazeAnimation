@@ -50,13 +50,13 @@ cd GazeAnimation
 
 ```
 
-- Download the NewGaze dataset
+- Download the CelebAGaze dataset
 
-  Download the tar of NewGaze dataset from [Google Driver Linking](https://drive.google.com/open?id=1lYzpKdShN68RJGxRF1JgXnW-ved0F-mJ).
+  Download the tar of CelebAGaze dataset from [Google Driver Linking](https://drive.google.com/open?id=1lYzpKdShN68RJGxRF1JgXnW-ved0F-mJ).
   
   ```bash
   cd your_path
-  tar -xvf NewGazeData.tar
+  tar -xvf CelebAGaze.tar
   ```
   
   Please edit the options.py and change your dataset path
