@@ -2,8 +2,8 @@
 
 
 ![](img/0.gif)
+![](img/26.gif)
 ![](img/28.gif)
-![](img/1.gif)
 ![](img/3.gif)
 ![](img/4.gif)
 ![](img/5.gif)
@@ -113,8 +113,8 @@ bash scripts/test_log8_7.sh
 ![](img/19.gif)
 ![](img/22.gif)
 ![](img/23.gif)
-![](img/26.gif)
 ![](img/29.gif)
+![](img/1.gif)
 
 
 # Related Work
