@@ -105,7 +105,7 @@ bash scripts/test_log8_7.sh
 ![](img/12.gif)
 ![](img/13.gif)
 ![](img/14.gif)
-![](img/15.gif)
+![](img/6.gif)
 ![](img/16.gif)
 ![](img/17.gif)
 ![](img/18.gif)
