@@ -102,22 +102,16 @@ bash scripts/test_log8_7.sh
 ![](img/9.gif)
 ![](img/10.gif)
 ![](img/11.gif)
-
 ![](img/12.gif)
 ![](img/13.gif)
 ![](img/14.gif)
-
-![](img/6.gif)
 ![](img/16.gif)
 ![](img/17.gif)
-
 ![](img/18.gif)
 ![](img/19.gif)
 ![](img/22.gif)
-
 ![](img/23.gif)
-![](img/29.gif)
-![](img/1.gif)
+
 
 
 # Related Work
