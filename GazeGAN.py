@@ -8,7 +8,7 @@ from Dataset import save_images
 import functools
 from tfLib.ops import *
 from tfLib.ops import instance_norm as IN
-from tfLib.loss import *
+from tfLib.vgg import Vgg
 from tfLib.advloss import *
 from tfLib.loss import L1
 import tensorflow.contrib.slim as slim
@@ -39,6 +39,8 @@ class Gaze_GAN(object):
 
         self.alpha = tf.placeholder(tf.float32, [self.opt.batch_size, 1])
         self.lr_decay = tf.placeholder(tf.float32, None, name='lr_decay')
+
+        self.vgg = Vgg()
 
     def build_model(self):
 
@@ -116,7 +118,6 @@ class Gaze_GAN(object):
 
         self.dy_logits = self.D(self.y, self.yl_left, self.yl_right, scope='Dy')
         self.gy_logits = self.D(self.yo, self._yl_left, self._yl_right, scope='Dy')
-        # for y2x
         # self.dyx_logits = self.D(self.x, self.y2x_left, self.y2x_right)
         self.gyx_logits = self.D(self.y2x_, self._y2x_left_, self._y2x_right_, scope='Dx')
         d_loss_fun, g_loss_fun = get_adversarial_loss(self.opt.loss_type)
@@ -134,13 +135,13 @@ class Gaze_GAN(object):
         self.recon_loss_y = self.Local_L1(self.yo, self.y)
         self.recon_loss_y_angle = self.Local_L1(self.y2x, self.y2x_)
 
-        self.percep_loss_x = self.percep_loss(self.xl_left, self._xl_left) \
-                             + self.percep_loss(self.xl_right, self._xl_right)
+        self.percep_loss_x = self.vgg.percep_loss(self.xl_left, self._xl_left) \
+                             + self.vgg.percep_loss(self.xl_right, self._xl_right)
 
-        self.percep_loss_y = self.percep_loss(self.yl_left, self._yl_left) \
-                             + self.percep_loss(self.yl_right, self._yl_right) + \
-                             self.percep_loss(self.y2x_left, self._y2x_left_) + \
-                             self.percep_loss(self.y2x_right, self._y2x_right_)
+        self.percep_loss_y = self.vgg.percep_loss(self.yl_left, self._yl_left) + \
+                             self.vgg.percep_loss(self.yl_right, self._yl_right) + \
+                             self.vgg.percep_loss(self.y2x_left, self._y2x_left_) + \
+                             self.vgg.percep_loss(self.y2x_right, self._y2x_right_)
 
         # fp loss
         self.recon_fp_content = L1(self.y2x_content, self.y2x_content_) + L1(self.yl_content, self.yo_content)
@@ -226,185 +227,6 @@ class Gaze_GAN(object):
                               / (self.opt.crop_w * self.opt.crop_h * self.opt.output_nc))
         return loss
 
-    def percep_loss(self, fake, real):
-        return self.vgg_style_loss(fake, real) + self.vgg_content_loss(fake, real)
-
-    def content_loss(self, endpoints_mixed, content_layers):
-
-        loss = 0
-        for layer in content_layers:
-            feat_a, feat_b = tf.split(endpoints_mixed[layer], 2, 0)
-            size = tf.size(feat_a)
-            loss += tf.nn.l2_loss(feat_a - feat_b) * 2 / tf.to_float(size)
-
-        return loss
-
-    def style_loss(self, endpoints_mixed, style_layers):
-
-        loss = 0
-        for layer in style_layers:
-            feat_a, feat_b = tf.split(endpoints_mixed[layer], 2, 0)
-            size = tf.size(feat_a)
-            loss += tf.nn.l2_loss(
-                self.gram(feat_a) - self.gram(feat_b)) * 2 / tf.to_float(size)
-
-        return loss
-
-    def gram(self, layer):
-
-        shape = tf.shape(layer)
-        num_images = shape[0]
-        width = shape[1]
-        height = shape[2]
-        num_filters = shape[3]
-        features = tf.reshape(layer, tf.stack([num_images, -1, num_filters]))
-        denominator = tf.to_float(width * height * num_filters)
-        grams = tf.matmul(features, features, transpose_a=True) / denominator
-
-        return grams
-
-    def vgg_content_loss(self, fake, real):
-        """
-        build the sub graph of perceptual matching network
-        return:
-            c_loss: content loss
-            s_loss: style loss
-        """
-
-        content_layers = ["vgg_16/conv5/conv5_3"]
-        style_layers = ["vgg_16/conv1/conv1_2", "vgg_16/conv2/conv2_2",
-                        "vgg_16/conv3/conv3_3", "vgg_16/conv4/conv4_3"]
-
-        _, endpoints_mixed = self.vgg_16(tf.concat([fake, real], 0))
-        c_loss = self.content_loss(endpoints_mixed, content_layers)
-
-        return c_loss
-
-    def vgg_style_loss(self, fake, real):
-        """
-        build the sub graph of perceptual matching network
-        return:
-            c_loss: content loss
-        """
-        style_layers = ["vgg_16/conv1/conv1_2", "vgg_16/conv2/conv2_2",
-                        "vgg_16/conv3/conv3_3", "vgg_16/conv4/conv4_3"]
-        _, endpoints_mixed = self.vgg_16(tf.concat([fake, real], 0))
-        s_loss = self.style_loss(endpoints_mixed, style_layers)
-
-        return s_loss
-
-    # visual angle
-    def test2(self):
-
-        init = tf.global_variables_initializer()
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth = True
-
-        with tf.Session(config=config) as sess:
-            sess.run(init)
-
-            self.saver = tf.train.Saver()
-            ckpt = tf.train.get_checkpoint_state(self.opt.checkpoints_dir)
-            print('Load checkpoint')
-            if ckpt and ckpt.model_checkpoint_path:
-                self.saver.restore(sess, ckpt.model_checkpoint_path)
-                print('Load Succeed!')
-            else:
-                print('Do not exists any checkpoint,Load Failed!')
-                exit()
-
-            trainbatch, trainmask, _, _, testbatch, testmask = self.dataset.input()
-            coord = tf.train.Coordinator()
-            threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-
-            batch_num = self.opt.test_num
-
-            fp1 = []
-            fp2 = []
-            fp3 = []
-
-            for j in range(batch_num):
-                x_img, x_img_pos, y_img, y_img_pos = sess.run([trainbatch, trainmask, testbatch, testmask])
-                x_m, x_left_pos, x_right_pos = self.get_Mask_and_pos(x_img_pos)
-                y_m, y_left_pos, y_right_pos = self.get_Mask_and_pos(y_img_pos)
-
-                f_d = {self.x: x_img,
-                       self.xm: x_m,
-                       self.x_left_p: x_left_pos,
-                       self.x_right_p: x_right_pos,
-                       self.y: y_img,
-                       self.ym: y_m,
-                       self.y_left_p: y_left_pos,
-                       self.y_right_p: y_right_pos
-                       }
-
-                fp_values = sess.run([self.xl_fp, self.yl_fp, self.y2x_fp], feed_dict=f_d)
-                fp1.append(fp_values[0][0])
-                fp2.append(fp_values[1][0])
-                fp3.append(fp_values[2][0])
-
-            np.savetxt('fp1.txt', fp1, delimiter=',', fmt='%i %i \n')
-            np.savetxt('fp2.txt', fp2, delimiter=',', fmt='%i %i \n')
-            np.savetxt('fp3.txt', fp3, delimiter=',', fmt='%i %i \n')
-
-            coord.request_stop()
-            coord.join(threads)
-
-    # visual content
-    def test4(self):
-
-        init = tf.global_variables_initializer()
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth = True
-
-        with tf.Session(config=config) as sess:
-            sess.run(init)
-
-            self.saver = tf.train.Saver()
-            ckpt = tf.train.get_checkpoint_state(self.opt.checkpoints_dir)
-
-            print('Load checkpoint')
-            if ckpt and ckpt.model_checkpoint_path:
-                self.saver.restore(sess, ckpt.model_checkpoint_path)
-                print('Load Succeed!')
-            else:
-                print('Do not exists any checkpoint,Load Failed!')
-                exit()
-
-            trainbatch, trainmask, _, _, testbatch, testmask, _, _ = self.dataset.input()
-            coord = tf.train.Coordinator()
-            threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-
-            batch_num = self.opt.test_num
-
-            fp1 = []
-            fp2 = []
-
-            for j in range(batch_num):
-                x_img, x_img_pos, y_img, y_img_pos = sess.run([trainbatch, trainmask, testbatch, testmask])
-                x_m, x_left_pos, x_right_pos = self.get_Mask_and_pos(x_img_pos)
-                y_m, y_left_pos, y_right_pos = self.get_Mask_and_pos(y_img_pos)
-
-                f_d = {self.x: x_img,
-                       self.xm: x_m,
-                       self.x_left_p: x_left_pos,
-                       self.x_right_p: x_right_pos,
-                       self.y: y_img,
-                       self.ym: y_m,
-                       self.y_left_p: y_left_pos,
-                       self.y_right_p: y_right_pos
-                       }
-
-                fp_values = sess.run([self.y2x_content, self.y2x_content_], feed_dict=f_d)
-                values = abs(fp_values[0][0] - fp_values[1][0])
-                mean, var = np.mean(values), np.var(values)
-                fp1.append([mean, var])
-
-            np.savetxt('fp_17_content.txt', fp1, delimiter=',', fmt='%.2f %.2f \n')
-
-            coord.request_stop()
-            coord.join(threads)
-
     def test(self):
 
         init = tf.global_variables_initializer()
@@ -425,7 +247,7 @@ class Gaze_GAN(object):
                 print('Do not exists any checkpoint,Load Failed!')
                 exit()
 
-            trainbatch, trainmask, _, _, testbatch, testmask, _, _ = self.dataset.input()
+            trainbatch, trainmask, _, _, testbatch, testmask = self.dataset.input()
             coord = tf.train.Coordinator()
             threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
@@ -529,132 +351,6 @@ class Gaze_GAN(object):
                             '{}/{:02d}inter1.jpg'.format(self.opt.test_sample_dir, j))
                 save_images(self.Transpose(np.array(inter_results1)),
                             '{}/{:02d}inter1_1.jpg'.format(self.opt.test_sample_dir, j))
-                # save_images(self.Transpose(np.array(inter_results2)),
-                #             '{}/{:02d}inter2.jpg'.format(self.opt.test_sample_dir, j))
-                # save_images(self.Transpose(np.array(inter_results3)),
-                #             '{}/{:02d}inter3.jpg'.format(self.opt.test_sample_dir, j))
-
-            coord.request_stop()
-            coord.join(threads)
-
-    # lpips, ssim
-    def test3(self):
-
-        init = tf.global_variables_initializer()
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth = True
-
-        with tf.Session(config=config) as sess:
-            sess.run(init)
-
-            self.saver = tf.train.Saver()
-            ckpt = tf.train.get_checkpoint_state(self.opt.checkpoints_dir)
-            print('Load checkpoint')
-            if ckpt and ckpt.model_checkpoint_path:
-                self.saver.restore(sess, ckpt.model_checkpoint_path)
-                print('Load Succeed!')
-            else:
-                print('Do not exists any checkpoint,Load Failed!')
-                exit()
-
-            _, _, _, _, _, _, testbatch0, testmask0 = self.dataset.input()
-            coord = tf.train.Coordinator()
-            threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-
-            batch_num = 99
-            for j in range(batch_num):
-                x_img, x_img_pos = sess.run([testbatch0, testmask0])
-                x_m, x_left_pos, x_right_pos = self.get_Mask_and_pos(x_img_pos)
-                f_d = {self.x: x_img,
-                       self.xm: x_m,
-                       self.x_left_p: x_left_pos,
-                       self.x_right_p: x_right_pos}
-
-                output = sess.run([self._xl_right, self.xl_right], feed_dict=f_d)
-                save_images(np.squeeze(output[0]), '{}/{:02d}.jpg'.format(self.opt.test_sample_dir + "/0", j))
-                save_images(np.squeeze(output[1]), '{}/{:02d}.jpg'.format(self.opt.test_sample_dir + "/1", j))
-
-            coord.request_stop()
-            coord.join(threads)
-
-    # lpips, ssim: final exp
-    def test5(self):
-
-        init = tf.global_variables_initializer()
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth = True
-
-        with tf.Session(config=config) as sess:
-            sess.run(init)
-
-            self.saver = tf.train.Saver()
-            ckpt = tf.train.get_checkpoint_state(self.opt.checkpoints_dir)
-            print('Load checkpoint')
-            if ckpt and ckpt.model_checkpoint_path:
-                self.saver.restore(sess, ckpt.model_checkpoint_path)
-                print('Load Succeed!')
-            else:
-                print('Do not exists any checkpoint,Load Failed!')
-                exit()
-
-            _, _, _, _, testbatch, testmask, _, _ = self.dataset.input()
-            coord = tf.train.Coordinator()
-            threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-
-            batch_num = 99
-            for j in range(batch_num):
-                y_img, y_img_pos = sess.run([testbatch, testmask])
-                y_m, y_left_pos, y_right_pos = self.get_Mask_and_pos(y_img_pos)
-                f_d = {self.y: y_img,
-                       self.ym: y_m,
-                       self.y_left_p: y_left_pos,
-                       self.y_right_p: y_right_pos}
-
-                output = sess.run([self._yl_right, self.yl_right], feed_dict=f_d)
-                save_images(np.squeeze(output[0]), '{}/{:02d}.jpg'.format(self.opt.test_sample_dir + "/0", j))
-                save_images(np.squeeze(output[1]), '{}/{:02d}.jpg'.format(self.opt.test_sample_dir + "/1", j))
-
-            coord.request_stop()
-            coord.join(threads)
-
-    # SM1
-    def test6(self):
-
-        init = tf.global_variables_initializer()
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth = True
-
-        with tf.Session(config=config) as sess:
-            sess.run(init)
-
-            self.saver = tf.train.Saver()
-            ckpt = tf.train.get_checkpoint_state(self.opt.checkpoints_dir)
-            print('Load checkpoint')
-            if ckpt and ckpt.model_checkpoint_path:
-                self.saver.restore(sess, ckpt.model_checkpoint_path)
-                print('Load Succeed!')
-            else:
-                print('Do not exists any checkpoint,Load Failed!')
-                exit()
-
-            _, _, _, _, testbatch, testmask, _, _ = self.dataset.input()
-            coord = tf.train.Coordinator()
-            threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-
-            batch_num = 299
-            for j in range(batch_num):
-                print(j)
-                y_img, y_img_pos = sess.run([testbatch, testmask])
-                y_m, y_left_pos, y_right_pos = self.get_Mask_and_pos(y_img_pos)
-                f_d = {self.x: y_img,
-                       self.xm: y_m,
-                       self.x_left_p: y_left_pos,
-                       self.x_right_p: y_right_pos}
-
-                output = sess.run([self.x, self.xo], feed_dict=f_d)
-                # output = self.Transpose(np.array([output[0], output[1]]))
-                save_images(np.squeeze(output[0]), '{}/{:02d}_r.jpg'.format(self.opt.test_sample_dir + "/2", j))
-                save_images(np.squeeze(output[1]), '{}/{:02d}_f.jpg'.format(self.opt.test_sample_dir + "/2", j))
 
             coord.request_stop()
             coord.join(threads)
@@ -988,33 +684,6 @@ class Gaze_GAN(object):
 
         return mask, left_eye_pos / float(self.opt.img_size), \
                right_eye_pos / float(self.opt.img_size)
-
-    def vgg_16(self, inputs, scope='vgg_16'):
-
-        # repeat_net = functools.partial(slim.repeat, )
-        with tf.variable_scope(scope, 'vgg_16', [inputs], reuse=tf.AUTO_REUSE) as sc:
-            end_points_collection = sc.original_name_scope + '_end_points'
-            # Collect outputs for conv2d, fully_connected and max_pool2d.
-            with slim.arg_scope(
-                    [slim.conv2d, slim.fully_connected, slim.max_pool2d],
-                    outputs_collections=end_points_collection):
-                net = slim.repeat(inputs, 2, slim.conv2d, 64, [3, 3], scope='conv1')
-                net = slim.max_pool2d(net, [2, 2], scope='pool1')
-                net = slim.repeat(net, 2, slim.conv2d, 128, [3, 3], scope='conv2')
-                net = slim.max_pool2d(net, [2, 2], scope='pool2')
-                net = slim.repeat(net, 3, slim.conv2d, 256, [3, 3], scope='conv3')
-                net = slim.max_pool2d(net, [2, 2], scope='pool3')
-                net = slim.repeat(net, 3, slim.conv2d, 512, [3, 3], scope='conv4')
-                net = slim.max_pool2d(net, [2, 2], scope='pool4')
-                net = slim.repeat(net, 3, slim.conv2d, 512, [3, 3], scope='conv5')
-                net = slim.max_pool2d(net, [2, 2], scope='pool5')
-
-                # Convert end_points_collection into a end_point dict.
-                end_points = slim.utils.convert_collection_to_dict(
-                    end_points_collection)
-
-        return net, end_points
-
 
 
 

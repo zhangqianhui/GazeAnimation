@@ -7,6 +7,11 @@ import tensorflow.contrib.slim as slim
 
 class Vgg(object):
 
+    def __init__(self):
+        self.content_layer_name = ["vgg_16/conv5/conv5_3"]
+        self.style_layers = ["vgg_16/conv1/conv1_2", "vgg_16/conv2/conv2_2",
+                        "vgg_16/conv3/conv3_3", "vgg_16/conv4/conv4_3"]
+
     def content_loss(self, endpoints_mixed, content_layers):
 
         loss = 0
@@ -48,10 +53,8 @@ class Vgg(object):
             c_loss: content loss
             s_loss: style loss
         """
-
-        content_layers = ["vgg_16/conv5/conv5_3"]
         _, endpoints_mixed = self.vgg_16(tf.concat([fake, real], 0))
-        c_loss = self.content_loss(endpoints_mixed, content_layers)
+        c_loss = self.content_loss(endpoints_mixed, self.content_layer_name)
 
         return c_loss
 
@@ -61,11 +64,8 @@ class Vgg(object):
         return:
             c_loss: content loss
         """
-        style_layers = ["vgg_16/conv1/conv1_2", "vgg_16/conv2/conv2_2",
-                        "vgg_16/conv3/conv3_3", "vgg_16/conv4/conv4_3"]
-
         _, endpoints_mixed = self.vgg_16(tf.concat([fake, real], 0))
-        s_loss = self.style_loss(endpoints_mixed, style_layers)
+        s_loss = self.style_loss(endpoints_mixed, self.style_layers)
 
         return s_loss
 

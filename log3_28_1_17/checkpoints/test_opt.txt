@@ -1,0 +1,42 @@
+----------------- Options ---------------
+               batch_size: 1                             
+                 capacity: 1000                          
+          checkpoints_dir: log3_28_1_17/checkpoints      	[default: ./checkpoints]
+                   crop_h: 30                            	[default: 92]
+                 crop_h_p: 128                           
+                   crop_w: 50                            	[default: 160]
+                 crop_w_p: 200                           
+                 data_dir: ../../../dataset/NewGazeData  
+                     ds_n: 4                             
+                     ds_s: 8                             
+               exper_name: log3_28_1_17                  	[default: log3_28_1]
+                   gpu_id: 0                             	[default: 2]
+                 img_size: 256                           
+           inception_path: ../pretrained/                
+                 input_nc: 3                             
+                  isTrain: False                         	[default: None]
+                  log_dir: log3_28_1_17/./logs           	[default: ./logs]
+                 n_blocks: 4                             
+               n_layers_d: 5                             
+               n_layers_e: 3                             
+               n_layers_g: 5                             
+               n_layers_r: 3                             
+              n_layers_sr: 2                             
+                      ndf: 16                            
+                      nef: 32                            
+                      ngf: 16                            
+                  norm_sr: In                            
+              num_threads: 10                            
+                output_nc: 3                             
+               pos_number: 4                             
+            pretrain_path: ./sg_pre_model_g/             
+           resize_or_crop: resize_and_crop               
+               sample_dir: log3_28_1_17/./sample_dir     	[default: ./sample_dir]
+                 test_num: 300                           
+          test_sample_dir: log3_28_1_17/test_sample_dir  	[default: test_sample_dir]
+         test_sample_dir0: log3_28_1_17/test_sample_dir/0	[default: None]
+         test_sample_dir1: log3_28_1_17/test_sample_dir/1	[default: None]
+         test_sample_dir2: log3_28_1_17/test_sample_dir/2	[default: None]
+                   use_sp: False                         
+                 vgg_path: ./vgg_16.ckpt                 
+----------------- End -------------------
