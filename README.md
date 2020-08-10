@@ -1,6 +1,5 @@
 ## GazeAnimation - Official Tensorflow Implementation
 
-<p align="center"><img width="100%" src="img/animation.png" /></p>
 
 ![](img/0.gif)
 ![](img/28.gif)
