@@ -113,7 +113,7 @@ bash scripts/test_log8_7.sh
 
 
 
-# Related Work
+# Related works
 
 - [Sparsely Grouped Multi-task Generative Adversarial Networks for Facial Attribute Manipulation](https://github.com/zhangqianhui/Sparsely-Grouped-GAN)
 
