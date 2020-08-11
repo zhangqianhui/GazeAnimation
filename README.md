@@ -77,7 +77,7 @@ tar -xvf vgg_16_2016_08_28.tar.gz
 
 - Pretraining Model
 
-You can edit label_dir and data_dir
+  Provide it in next days.
 
 - Train the model using command line with python
 
