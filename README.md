@@ -9,22 +9,21 @@
 ![](img/5.gif)
 
 
-> ***A Dual In-painting Model for Unsupervised Gaze Correction and Animation in the Wild***<br>
+> ***Dual In-painting Model for Unsupervised Gaze Correction and Animation in the Wild***<br>
 > Jichao Zhang, Jingjing Chen, [Hao Tang](https://ha0tang.github.io/), [Wei Wang](https://weiwangtrento.github.io/), [Yan Yan](https://userweb.cs.txstate.edu/~y_y34/), [Enver Sangineto](https://disi.unitn.it/~enver.sangineto/index.html), [Nicu Sebe](http://disi.unitn.it/~sebe/)<br>
 > In ACMMM 2020.<br>
 
-> Paper: https://arxiv.org/abs/1805.07509<br>
+> Paper: https://arxiv.org/abs/2008.03834<br>
 
 
 ### Citation
 
 ```
 @inproceedings{zhang2018sparsely,
-  title={Sparsely grouped multi-task generative adversarial networks for facial attribute manipulation},
+  title={Dual In-painting Model for Unsupervised Gaze Correction and Animation in the Wild},
   author={Zhang, Jichao and Shu, Yezhi and Xu, Songhua and Cao, Gongze and Zhong, Fan and Liu, Meng and Qin, Xueying},
-  booktitle={Proceedings of the 26th ACM international conference on Multimedia},
-  pages={392--401},
-  year={2018}
+  booktitle={ACMMM 2020},
+  year={2010}
 }
 ```
 
