@@ -22,7 +22,7 @@
 @inproceedings{zhangGazeAnimation,
   title={Dual In-painting Model for Unsupervised Gaze Correction and Animation in the Wild},
   author={Jichao Zhang, Jingjing Chen, Hao Tang, Wei Wang, Yan Yan, Enver Sangineto, Nicu Sebe},
-  booktitle={ACMMM 2020},
+  booktitle={ACM MM},
   year={2020}
 }
 ```
