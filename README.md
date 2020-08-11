@@ -75,9 +75,6 @@ tar -xvf vgg_16_2016_08_28.tar.gz
 
   Please edit the options.py and change your vgg path
 
-- Pretraining Model
-
-  Provide it in next days.
 
 - Train the model using command line with python
 
@@ -95,7 +92,7 @@ Or Using scripts for training
 ```bash
 bash scripts/train_log8_7.sh
 ```
-Using scripts for testing and pretained model can be downloaded [Pretrained Model](https://drive.google.com/file/d/1GYyGGQm06ahI0V4mBzSCaT1Fh4kzHb76/view?usp=sharing) 
+Using scripts for testing and pretained model can be downloaded [Pretrained Model]() 
 
 ```bash
 bash scripts/test_log8_7.sh
