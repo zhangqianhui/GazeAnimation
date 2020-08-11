@@ -19,7 +19,7 @@
 ### Citation
 
 ```
-@inproceedings{zhang2018sparsely,
+@inproceedings{zhangGazeAnimation,
   title={Dual In-painting Model for Unsupervised Gaze Correction and Animation in the Wild},
   author={Jichao Zhang, Jingjing Chen, Hao Tang, Wei Wang, Yan Yan, Enver Sangineto, Nicu Sebe},
   booktitle={ACMMM 2020},
@@ -65,25 +65,38 @@ cd GazeAnimation
   ```
   
   Please edit the options.py and change your dataset path
+  
+- VGG-16 pretrained weights
+
+```
+wget http://download.tensorflow.org/models/vgg_16_2016_08_28.tar.gz .
+tar -xvf vgg_16_2016_08_28.tar.gz
+```
+
+  Please edit the options.py and change your vgg path
 
 - Pretraining Model
 
 You can edit label_dir and data_dir
 
-- Train the model using command line with python 
+- Train the model using command line with python
+
 ```bash
-python train.py --use_sp --gpu_id='1' --exper_name='log8_7' --crop_w=50 --crop_h=30
+python train.py --use_sp --gpu_id='0' --exper_name='log8_7' --crop_w=50 --crop_h=30
 ```
 - Test the model
+
 ```bash
 python test.py --exper_name='log8_7' --gpu_id='0' --crop_h=30 --crop_w=50 --test_sample_dir='test_sample_dir' --checkpoints='checkpoints'
 ```
 
 Or Using scripts for training 
+
 ```bash
 bash scripts/train_log8_7.sh
 ```
 Using scripts for testing and pretained model can be downloaded [Pretrained Model](https://drive.google.com/file/d/1GYyGGQm06ahI0V4mBzSCaT1Fh4kzHb76/view?usp=sharing) 
+
 ```bash
 bash scripts/test_log8_7.sh
 ```
