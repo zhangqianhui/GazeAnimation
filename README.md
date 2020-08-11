@@ -9,22 +9,21 @@
 ![](img/5.gif)
 
 
-> ***A Dual In-painting Model for Unsupervised Gaze Correction and Animation in the Wild***<br>
+> ***Dual In-painting Model for Unsupervised Gaze Correction and Animation in the Wild***<br>
 > Jichao Zhang, Jingjing Chen, [Hao Tang](https://ha0tang.github.io/), [Wei Wang](https://weiwangtrento.github.io/), [Yan Yan](https://userweb.cs.txstate.edu/~y_y34/), [Enver Sangineto](https://disi.unitn.it/~enver.sangineto/index.html), [Nicu Sebe](http://disi.unitn.it/~sebe/)<br>
 > In ACMMM 2020.<br>
 
-> Paper: https://arxiv.org/abs/1805.07509<br>
+> Paper: https://arxiv.org/abs/2008.03834<br>
 
 
 ### Citation
 
 ```
-@inproceedings{zhang2018sparsely,
-  title={Sparsely grouped multi-task generative adversarial networks for facial attribute manipulation},
-  author={Zhang, Jichao and Shu, Yezhi and Xu, Songhua and Cao, Gongze and Zhong, Fan and Liu, Meng and Qin, Xueying},
-  booktitle={Proceedings of the 26th ACM international conference on Multimedia},
-  pages={392--401},
-  year={2018}
+@inproceedings{zhangGazeAnimation,
+  title={Dual In-painting Model for Unsupervised Gaze Correction and Animation in the Wild},
+  author={Jichao Zhang, Jingjing Chen, Hao Tang, Wei Wang, Yan Yan, Enver Sangineto, Nicu Sebe},
+  booktitle={ACMMM 2020},
+  year={2020}
 }
 ```
 
@@ -36,7 +35,7 @@
 
 ```bash
 Python=3.6
-pip install -r requirments.txt
+pip install -r requirements.txt
 
 ```
 Or Using Conda
@@ -66,25 +65,35 @@ cd GazeAnimation
   ```
   
   Please edit the options.py and change your dataset path
+  
+- VGG-16 pretrained weights
 
-- Pretraining Model
+```
+wget http://download.tensorflow.org/models/vgg_16_2016_08_28.tar.gz .
+tar -xvf vgg_16_2016_08_28.tar.gz
+```
 
-You can edit label_dir and data_dir
+  Please edit the options.py and change your vgg path
 
-- Train the model using command line with python 
+
+- Train the model using command line with python
+
 ```bash
-python train.py --use_sp --gpu_id='1' --exper_name='log8_7' --crop_w=50 --crop_h=30
+python train.py --use_sp --gpu_id='0' --exper_name='log8_7' --crop_w=50 --crop_h=30
 ```
 - Test the model
+
 ```bash
 python test.py --exper_name='log8_7' --gpu_id='0' --crop_h=30 --crop_w=50 --test_sample_dir='test_sample_dir' --checkpoints='checkpoints'
 ```
 
 Or Using scripts for training 
+
 ```bash
 bash scripts/train_log8_7.sh
 ```
-Using scripts for testing and pretained model can be downloaded [Pretrained Model](https://drive.google.com/file/d/1GYyGGQm06ahI0V4mBzSCaT1Fh4kzHb76/view?usp=sharing) 
+Using scripts for testing and pretained model can be downloaded [Pretrained Model]() 
+
 ```bash
 bash scripts/test_log8_7.sh
 ```
@@ -114,9 +123,11 @@ bash scripts/test_log8_7.sh
 
 
 
-# Related Work
+# Related works
 
-- [Sparsely_Grouped_GAN](https://github.com/zhangqianhui/Sparsely-Grouped-GAN)
+- [Sparsely Grouped Multi-task Generative Adversarial Networks for Facial Attribute Manipulation](https://github.com/zhangqianhui/Sparsely-Grouped-GAN)
 
-- [GazeCorrection](https://github.com/zhangqianhui/GazeCorrection)
+- [GazeCorrection:Self-Guided Eye Manipulation in the wild using Self-Supervised Generative Adversarial Networks](https://github.com/zhangqianhui/GazeCorrection)
+
+- [PA-GAN: Progressive Attention Generative Adversarial Network for Facial Attribute Editing](https://github.com/LynnHo/PA-GAN-Tensorflow)
 
