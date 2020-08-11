@@ -21,9 +21,9 @@
 ```
 @inproceedings{zhang2018sparsely,
   title={Dual In-painting Model for Unsupervised Gaze Correction and Animation in the Wild},
-  author={Zhang, Jichao and Shu, Yezhi and Xu, Songhua and Cao, Gongze and Zhong, Fan and Liu, Meng and Qin, Xueying},
+  author={Jichao Zhang, Jingjing Chen, Hao Tang, Wei Wang, Yan Yan, Enver Sangineto, Nicu Sebe},
   booktitle={ACMMM 2020},
-  year={2010}
+  year={2020}
 }
 ```
 
@@ -118,4 +118,6 @@ bash scripts/test_log8_7.sh
 - [Sparsely_Grouped_GAN](https://github.com/zhangqianhui/Sparsely-Grouped-GAN)
 
 - [GazeCorrection](https://github.com/zhangqianhui/GazeCorrection)
+
+- [PA-GAN: Progressive Attention Generative Adversarial Network for Facial Attribute Editing](https://github.com/LynnHo/PA-GAN-Tensorflow)
 
