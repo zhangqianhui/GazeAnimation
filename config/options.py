@@ -15,7 +15,7 @@ class BaseOptions():
         parser.add_argument('--data_dir', type=str,
                             default='../../../dataset/CelebAGaze', help='path to images')
         parser.add_argument('--pretrain_path', type=str,
-                            default='./sg_pre_model_g/', help='pretrained model path')
+                            default='./pam_dir/', help='pretrained model for pam module mentioned in the paper')
         parser.add_argument('--vgg_path', type=str,
                             default='./vgg_16.ckpt', help='vgg path for perceptual loss')
         parser.add_argument('--inception_path', type=str, default='../pretrained/')
