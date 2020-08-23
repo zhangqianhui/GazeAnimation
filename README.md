@@ -14,18 +14,6 @@
 
 > Paper: https://arxiv.org/abs/2008.03834<br>
 
-
-### Citation
-
-```
-@inproceedings{zhangGazeAnimation,
-  title={Dual In-painting Model for Unsupervised Gaze Correction and Animation in the Wild},
-  author={Jichao Zhang, Jingjing Chen, Hao Tang, Wei Wang, Yan Yan, Enver Sangineto, Nicu Sebe},
-  booktitle={ACM MM},
-  year={2020}
-}
-```
-
 ## Network Architecture
 
 ![](img/model.png)
@@ -133,4 +121,15 @@ bash scripts/test_log8_7.sh
 - [GazeCorrection:Self-Guided Eye Manipulation in the wild using Self-Supervised Generative Adversarial Networks](https://github.com/zhangqianhui/GazeCorrection)
 
 - [PA-GAN: Progressive Attention Generative Adversarial Network for Facial Attribute Editing](https://github.com/LynnHo/PA-GAN-Tensorflow)
+
+### Citation
+
+```
+@inproceedings{zhangGazeAnimation,
+  title={Dual In-painting Model for Unsupervised Gaze Correction and Animation in the Wild},
+  author={Jichao Zhang, Jingjing Chen, Hao Tang, Wei Wang, Yan Yan, Enver Sangineto, Nicu Sebe},
+  booktitle={ACM MM},
+  year={2020}
+}
+```
 
