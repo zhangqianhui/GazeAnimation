@@ -73,7 +73,11 @@ tar -xvf vgg_16_2016_08_28.tar.gz
 ```
 
   Please edit the options.py and change your vgg path
+  
+- Pretrained model for PAM module.
 
+Download it from [PAM Pretrained model](https://drive.google.com/file/d/1Lq3Uja5vN0VicWe5ZfjtDFUQHoCRbOt2/view?usp=sharing).
+PLease unzip it in pam_dir and don't contain the sub-dir.
 
 - Train the model using command line with python
 
