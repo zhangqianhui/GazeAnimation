@@ -29,7 +29,7 @@ Or Using Conda
 
 ```bash
 -conda create -name GazeA python=3.6
--conda install tensorflow-gpu=1.9
+-conda install tensorflow-gpu=1.9 or higher
 ```
 Other packages installed by pip.
 
