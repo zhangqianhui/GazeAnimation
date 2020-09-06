@@ -401,7 +401,7 @@ class Gaze_GAN(object):
                     ckpt = tf.train.get_checkpoint_state(self.opt.pretrain_path)
                     self.p_saver.restore(sess, ckpt.model_checkpoint_path)
                 except:
-                    print(" Self-Guided Model path may not be correct")
+                    print("PAM ckpt path may not be correct")
             # summary_op = tf.summary.merge_all()
             # summary_writer = tf.summary.FileWriter(self.opt.log_dir, sess.graph)
             step = start_step
