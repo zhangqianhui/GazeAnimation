@@ -1,26 +1,9 @@
-absl-py==0.9.0
-astor==0.8.1
-block-extractor-cuda==0.0.0
-certifi==2020.6.20
-gast @ file:///tmp/build/80754af9/gast_1597433534803/work
-grpcio @ file:///tmp/build/80754af9/grpcio_1597424460877/work
 imageio==2.9.0
-importlib-metadata @ file:///tmp/build/80754af9/importlib-metadata_1593446433964/work
-local-attn-reshape-cuda==0.0.0
-Markdown @ file:///tmp/build/80754af9/markdown_1597433258348/work
-mkl-fft==1.1.0
-mkl-random==1.1.1
-mkl-service==2.3.0
-numpy @ file:///tmp/build/80754af9/numpy_and_numpy_base_1596233737064/work
 opencv-python==4.4.0.42
 Pillow==7.2.0
-protobuf==3.12.4
-resample2d-cuda==0.0.0
 scipy==1.2.1
 setproctitle==1.1.10
 six==1.15.0
 tensorboard==1.9.0
 tensorflow==1.9.0
-termcolor==1.1.0
-Werkzeug==1.0.1
-zipp==3.1.0
+numpy==1.19.1
