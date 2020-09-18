@@ -83,7 +83,8 @@ Or Using scripts for training
 ```bash
 bash scripts/train_log8_7.sh
 ```
-Using scripts for testing and pretained model can be downloaded [Pretrained Model](https://drive.google.com/file/d/1Gt0tRGmEKwxyC8UVDrVT2qUnWgt2f6LF/view?usp=sharing) 
+Using scripts for testing and pretained model can be downloaded [Pretrained Model](https://drive.google.com/file/d/1Gt0tRGmEKwxyC8UVDrVT2qUnWgt2f6LF/view?usp=sharing). Unzip 
+pretrained.zip  and move files into 'experiments/checkpoints'
 
 ```bash
 bash scripts/test_log8_7.sh
