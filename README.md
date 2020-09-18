@@ -64,7 +64,7 @@ tar -xvf vgg_16_2016_08_28.tar.gz
   
 - Pretrained model for PAM module.
 
-Download it from [PAM Pretrained model](https://drive.google.com/file/d/1Lq3Uja5vN0VicWe5ZfjtDFUQHoCRbOt2/view?usp=sharing).
+Download it from [PAM Pretrained model](https://drive.google.com/file/d/1IcugDujKQhKMtEEuC2z3zZIUuEVnoXNY/view?usp=sharing).
 PLease unzip it in pam_dir and don't contain the sub-dir.
 
 - Train the model using command line with python
@@ -83,7 +83,7 @@ Or Using scripts for training
 ```bash
 bash scripts/train_log8_7.sh
 ```
-Using scripts for testing and pretained model can be downloaded [Pretrained Model]() 
+Using scripts for testing and pretained model can be downloaded [Pretrained Model](https://drive.google.com/file/d/1Gt0tRGmEKwxyC8UVDrVT2qUnWgt2f6LF/view?usp=sharing) 
 
 ```bash
 bash scripts/test_log8_7.sh
