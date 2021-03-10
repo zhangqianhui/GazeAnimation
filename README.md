@@ -49,7 +49,7 @@ git checkout GazeAnimationV2
   
 - Download the CelebAHQGaze dataset
 
-Download the tar of CelebHQAGaze dataset from [Google Driver Linking](https://drive.google.com/file/d/1Q7iOc3ZWnyld2fbw6yYR0EIkF0m0FERN/view?usp=sharing).
+Download the tar of CelebAHQGaze dataset from [Google Driver Linking](https://drive.google.com/file/d/1Q7iOc3ZWnyld2fbw6yYR0EIkF0m0FERN/view?usp=sharing).
 
 ```bash
 cd your_path
