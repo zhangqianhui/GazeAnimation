@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 from __future__ import division
-from __future__ import print_function
 
 import os
 import imageio
@@ -97,14 +96,18 @@ def replace_eyes(image, local_left_eyes, local_right_eyes, start_left_point, sta
 
     img_size = image.shape[-2]
     copy_image = np.copy(image)
+
     for i in range(len(image)):
-        #for left
+
+        # for left
         y_cen, x_cen = int(start_left_point[i][0]*img_size), np.abs(int(start_left_point[i][1]*img_size))
         local_height, local_width = int(local_left_eyes[i].shape[0]), int(local_left_eyes[i].shape[1])
         copy_image[i, y_cen:(y_cen + local_height), x_cen:(x_cen + local_width), :] = local_left_eyes[i]
-        #for right
+
+        # for right
         y_cen, x_cen = int(start_right_point[i][0]*img_size), int(start_right_point[i][1]*img_size)
         local_height, local_width = int(local_right_eyes[i].shape[0]), int(local_right_eyes[i].shape[1])
+
         #print "local_width", local_width, local_height, x_cen, y_cen, i
         if x_cen + local_width > img_size:
             y_right = img_size
@@ -133,18 +136,19 @@ def imageClose(image, left_eye, right_eye, left_eye_mask, right_eye_mask):
         _right_eye_mask = (right_eye_mask[...,[2,1,0]][i] * 255).astype(np.uint8)
         cv2.imwrite("_right_eye_mask.jpg", _right_eye_mask)
 
-        #for left eyes
+        # for left eye
         itemindex = np.where(_left_eye_mask == 255)
         center = (itemindex[1][0] // 2 + itemindex[1][-1] // 2, itemindex[0][0] // 2 + itemindex[0][-1] // 2)
-        print(center)
+
+        # print(center)
         dstimg = cv2.inpaint(_image, _left_eye_mask[...,0], 1, cv2.INPAINT_TELEA)
-        #cv2.imwrite("dstimg.jpg", dstimg)
+        # cv2.imwrite("dstimg.jpg", dstimg)
         out_left = cv2.seamlessClone(_left_eye, dstimg, _left_eye_mask, center, cv2.NORMAL_CLONE)
 
-        #for right eyes
+        # for right eye
         itemindex = np.where(_right_eye_mask == 255)
         center = (itemindex[1][0] // 2 + itemindex[1][-1] // 2, itemindex[0][0] // 2 + itemindex[0][-1] // 2)
-        print(center)
+        # print(center)
         dstimg = cv2.inpaint(out_left, _right_eye_mask[...,0], 1, cv2.INPAINT_TELEA)
         out_right = cv2.seamlessClone(_right_eye, dstimg, _right_eye_mask, center, cv2.NORMAL_CLONE)
         out_right = out_right[..., [2, 1, 0]] / 127.5 - 1

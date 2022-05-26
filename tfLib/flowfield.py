@@ -1,71 +1,74 @@
 from __future__ import absolute_import
 from __future__ import division
-from __future__ import print_function
 
 import tensorflow as tf
 
 
-def bilinear_sample(input, flow, name):
+def bilinear_sample(i_input, flow, name):
     # reference to spatial transform network
     # 1.details can be found in office release:
     #   https://github.com/tensorflow/models/blob/master/research/transformer/spatial_transformer.py
     # 2.maybe another good implement can be found in:
     #   https://github.com/kevinzakka/spatial-transformer-network/blob/master/transformer.py
     #   but this one maybe contain some problems, go to --> https://github.com/kevinzakka/spatial-transformer-network/issues/10
-    with tf.variable_scope(name):
-        N, iH, iW, iC = input.get_shape().as_list()
+    with tf.compat.v1.variable_scope(name):
+        N, iH, iW, iC = i_input.get_shape().as_list()
         _, fH, fW, fC = flow.get_shape().as_list()
 
         assert iH == fH and iW == fW
+
         # re-order & reshape: N,H,W,C --> N,C,H*W , shape= ( 16,2,3500 )
         flow = tf.reshape(tf.transpose(flow, [0, 3, 1, 2]), [-1, fC, fH * fW])
+
         # get mesh-grid, 2,H*W
         indices_grid = meshgrid(iH, iW)
         transformed_grid = tf.add(flow, indices_grid)
         x_s = tf.slice(transformed_grid, [0, 0, 0], [-1, 1, -1])  # x_s should be (16,1,3500)
         y_s = tf.slice(transformed_grid, [0, 1, 0], [-1, 1, -1])  # y_s should be ( 16,1,3500)
-        # look tf.slice with ctrl , to figure out its meanning
+
+        # look tf.slice with ctrl , to figure out its meaning
         x_s_flatten = tf.reshape(x_s, [-1])  # should be (16*3500)
         y_s_flatten = tf.reshape(y_s, [-1])  # should be (16*3500)
-        transformed_image = interpolate(input, x_s_flatten, y_s_flatten, iH, iW, 'interpolate')
+        transformed_image = interpolate(i_input, x_s_flatten, y_s_flatten, iH, iW, 'interpolate')
+
         # print(transformed_image.get_shape().as_list())
         transformed_image = tf.reshape(transformed_image, [N, iH, iW, iC])
 
         return transformed_image
 
+
 def meshgrid(height, width, ones_flag=None):
 
-    with tf.variable_scope('meshgrid'):
+    with tf.compat.v1.variable_scope('meshgrid'):
         y_linspace = tf.linspace(-1., 1., height)
         x_linspace = tf.linspace(-1., 1., width)
         x_coordinates, y_coordinates = tf.meshgrid(x_linspace, y_linspace)
-        x_coordinates = tf.reshape(x_coordinates, shape=[-1])   #[H*W]
-        y_coordinates = tf.reshape(y_coordinates, shape=[-1])   #[H*W]
+        x_coordinates = tf.reshape(x_coordinates, shape=[-1])   # [H*W]
+        y_coordinates = tf.reshape(y_coordinates, shape=[-1])   # [H*W]
         if ones_flag is None:
-            indices_grid = tf.stack([x_coordinates, y_coordinates], axis=0) #[2, H*W]
+            indices_grid = tf.stack([x_coordinates, y_coordinates], axis=0)  # [2, H*W]
         else:
             indices_grid = tf.stack([x_coordinates, y_coordinates, tf.ones_like(x_coordinates)], axis=0)
 
         return indices_grid
 
 
-def interpolate(input, x, y, out_height, out_width, name):
+def interpolate(i_input, x, y, out_height, out_width, name):
     # parameters: input is input image,which has shape of (batchsize,height,width,3)
     # x,y is flattened coordinates , which has shape of (16*3500) = 56000
     # out_heigth,out_width = height,width
-    with tf.variable_scope(name):
-        N, H, W, C = input.get_shape().as_list()  #64, 40, 72, 3
+    with tf.compat.v1.variable_scope(name):
+        N, H, W, C = i_input.get_shape().as_list()  # 64, 40, 72, 3
 
         x = tf.cast(x, dtype=tf.float32)
         y = tf.cast(y, dtype=tf.float32)
         H_f = tf.cast(H, dtype=tf.float32)
         W_f = tf.cast(W, dtype=tf.float32)
         # note that x,y belongs to [-1,1] before
-        x = (x + 1.0) * (W_f - 1) * 0.5 # x now is [0,2]*0.5*[width-1],is [0,1]*[width-1]
-                                        # shape 16 * 3500
+        x = (x + 1.0) * (W_f - 1) * 0.5  # x now is [0,2]*0.5*[width-1],is [0,1]*[width-1]; shape 16 * 3500
         y = (y + 1.0) * (H_f - 1) * 0.5
         # get x0 and x1 in bilinear interpolation
-        x0 = tf.cast(tf.floor(x), tf.int32) # cast to int ,discrete
+        x0 = tf.cast(tf.floor(x), tf.int32)  # cast to int ,discrete
         x1 = x0 + 1
         y0 = tf.cast(tf.floor(y), tf.int32)
         y1 = y0 + 1
@@ -79,7 +82,7 @@ def interpolate(input, x, y, out_height, out_width, name):
         x1 = tf.clip_by_value(x1, zero, max_x)
         y0 = tf.clip_by_value(y0, zero, max_y)
         y1 = tf.clip_by_value(y1, zero, max_y)
-        # note x0,x1,y0,y1 have same shape 16 * 3500
+        # note that x0,x1,y0,y1 have the same shape 16 * 3500
         # go to method , look tf.clip_by_value,
         # realizing restrict op
         flat_image_dimensions = H * W
@@ -100,7 +103,7 @@ def interpolate(input, x, y, out_height, out_width, name):
         indices_d = base_y1 + x1
 
         # gather every pixel value
-        flat_image = tf.reshape(input, shape=(-1, C))
+        flat_image = tf.reshape(i_input, shape=(-1, C))
         flat_image = tf.cast(flat_image, dtype=tf.float32)
 
         pixel_values_a = tf.gather(flat_image, indices_a)
@@ -122,20 +125,22 @@ def interpolate(input, x, y, out_height, out_width, name):
                            area_b * pixel_values_b,
                            area_c * pixel_values_c,
                            area_d * pixel_values_d])
-        #for mask the interpolate part which pixel don't move
+
+        # for mask interpolate the part which pixel don't move
         mask = area_a + area_b + area_c + area_d
         output = (1 - mask) * flat_image + mask * output
 
         return output
 
+
 def repeat(x, n_repeats):
     # parameters x: list [16]
     #            n_repeats : scalar,3500
-    with tf.variable_scope('_repeat'):
+    with tf.compat.v1.variable_scope('_repeat'):
         rep = tf.reshape(tf.ones(shape=tf.stack([n_repeats, ]), dtype=tf.int32), (1, n_repeats))
         # just know rep has shape (1,3500), and it's value is 1
         x = tf.matmul(tf.reshape(x, (-1, 1)), rep)
         # after reshape , matmul is (16,1)X(1,3500)
-        # in matrix multi, result has shape ( 16,3500)
-        # plus, in each row i, has same value  i * 3500
+        # in matrix multi, result has shape (16, 3500)
+        # plus, in each row i, has the same value i * 3500
         return tf.reshape(x, [-1])  # return 16* 3500

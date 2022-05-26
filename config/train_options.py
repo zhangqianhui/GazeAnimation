@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 from __future__ import division
-from __future__ import print_function
 
 from .options import BaseOptions
+
 
 class TrainOptions(BaseOptions):
 
@@ -15,8 +15,10 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--batch_size', type=int, default=16, help='input batch size')
         parser.add_argument('--continue_train', action='store_true', help='continue training: load the latest model')
         parser.add_argument('--phase', type=str, default='train', help='train, val, test, etc')
-        parser.add_argument('--niter', type=int, default=200000, help='# of iter at starting learning rate')
-        parser.add_argument('--niter_decay', type=int, default=50000, help='# of iter to linearly decay learning rate to zero')
+        parser.add_argument('--niter_report_progress', type=int, default=500, help='# of iterations between reporting progress')
+        parser.add_argument('--niter_save', type=int, default=20000, help='# of iterations between saves')
+        parser.add_argument('--niter', type=int, default=200000, help='# of iterations at starting learning rate')
+        parser.add_argument('--niter_decay', type=int, default=50000, help='# of iterations to linearly decay learning rate to zero')
         parser.add_argument('--lr_d', type=float, default=0.0001, help='initial learning rate for Adam in d')
         parser.add_argument('--lr_g', type=float, default=0.0001, help='initial learning rate for Adam in g')
         parser.add_argument('--lr_r', type=float, default=0.0005, help='initial learning rate for Adam in r')

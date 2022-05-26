@@ -1,0 +1,8 @@
+pam/checkpoint
+pam/model_*
+CelebAGaze
+log3_28_1_17
+.DS_Store
+.idea
+__pycache__
+vgg_16.ckpt

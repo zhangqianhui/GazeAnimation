@@ -1,11 +1,11 @@
 from __future__ import absolute_import
 from __future__ import division
-from __future__ import print_function
 
 import argparse
 import os
 from PyLib.utils import makefolders
 from abc import abstractmethod
+
 
 class BaseOptions():
     def __init__(self):
@@ -13,9 +13,9 @@ class BaseOptions():
 
     def initialize(self, parser):
         parser.add_argument('--data_dir', type=str,
-                            default='../../../dataset/CelebAGaze', help='path to images')
+                            default='./CelebAGaze', help='path to images')
         parser.add_argument('--pretrain_path', type=str,
-                            default='./pam_dir/', help='pretrained model for pam module mentioned in the paper')
+                            default='./pam', help='pretrained model for pam module mentioned in the paper')
         parser.add_argument('--vgg_path', type=str,
                             default='./vgg_16.ckpt', help='vgg path for perceptual loss')
         parser.add_argument('--inception_path', type=str, default='../pretrained/')
@@ -75,7 +75,7 @@ class BaseOptions():
 
         opt.log_dir = os.path.join(opt.exper_name, opt.log_dir)
         makefolders([opt.inception_path, opt.checkpoints_dir,
-            opt.sample_dir, opt.test_sample_dir, opt.log_dir,
+                     opt.sample_dir, opt.test_sample_dir, opt.log_dir,
                      opt.test_sample_dir0, opt.test_sample_dir1, opt.test_sample_dir2])
 
         message = ''

@@ -1,9 +1,10 @@
 from __future__ import absolute_import
 from __future__ import division
-from __future__ import print_function
 
-import os, errno
+import os
+import errno
 import logging
+
 
 def list_difference(a, b):
     '''
@@ -16,6 +17,7 @@ def list_difference(a, b):
     comparison = set_a.difference(set_b)
 
     return list(comparison)
+
 
 def mkdir_p(path):
     '''
@@ -30,6 +32,7 @@ def mkdir_p(path):
         else:
             raise
 
+
 def makefolders(subfolders):
     '''
     create multiple folders
@@ -41,6 +44,7 @@ def makefolders(subfolders):
     for path in subfolders:
         if not os.path.exists(path):
             mkdir_p(path)
+
 
 def setLogConfig():
     logging.basicConfig(level=logging.INFO)

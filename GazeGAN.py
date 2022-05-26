@@ -1,8 +1,9 @@
 from __future__ import absolute_import
 from __future__ import division
-from __future__ import print_function
 
 import numpy as np
+
+from datetime import datetime
 import tensorflow as tf
 from Dataset import save_images
 import functools
@@ -11,34 +12,36 @@ from tfLib.ops import instance_norm as IN
 from tfLib.vgg import Vgg
 from tfLib.advloss import *
 from tfLib.loss import L1
-import tensorflow.contrib.slim as slim
+import tf_slim as slim
 import os
 import random
+
 
 class Gaze_GAN(object):
 
     # build model
     def __init__(self, dataset, opt):
+        tf.compat.v1.disable_eager_execution()
 
         self.dataset = dataset
         self.opt = opt
         # placeholder
-        self.x_left_p = tf.placeholder(tf.float32, [self.opt.batch_size, self.opt.pos_number])
-        self.x_right_p = tf.placeholder(tf.float32, [self.opt.batch_size, self.opt.pos_number])
-        self.y_left_p = tf.placeholder(tf.float32, [self.opt.batch_size, self.opt.pos_number])
-        self.y_right_p = tf.placeholder(tf.float32, [self.opt.batch_size, self.opt.pos_number])
+        self.x_left_p = tf.compat.v1.placeholder(tf.float32, [self.opt.batch_size, self.opt.pos_number])
+        self.x_right_p = tf.compat.v1.placeholder(tf.float32, [self.opt.batch_size, self.opt.pos_number])
+        self.y_left_p = tf.compat.v1.placeholder(tf.float32, [self.opt.batch_size, self.opt.pos_number])
+        self.y_right_p = tf.compat.v1.placeholder(tf.float32, [self.opt.batch_size, self.opt.pos_number])
 
-        self.x = tf.placeholder(tf.float32,
-                                [self.opt.batch_size, self.opt.img_size, self.opt.img_size, self.opt.input_nc])
-        self.xm = tf.placeholder(tf.float32,
-                                [self.opt.batch_size, self.opt.img_size, self.opt.img_size, self.opt.output_nc])
-        self.y = tf.placeholder(tf.float32,
-                                [self.opt.batch_size, self.opt.img_size, self.opt.img_size, self.opt.input_nc])
-        self.ym = tf.placeholder(tf.float32,
-                                [self.opt.batch_size, self.opt.img_size, self.opt.img_size, self.opt.input_nc])
+        self.x = tf.compat.v1.placeholder(tf.float32,
+                                          [self.opt.batch_size, self.opt.img_size, self.opt.img_size, self.opt.input_nc])
+        self.xm = tf.compat.v1.placeholder(tf.float32,
+                                           [self.opt.batch_size, self.opt.img_size, self.opt.img_size, self.opt.output_nc])
+        self.y = tf.compat.v1.placeholder(tf.float32,
+                                          [self.opt.batch_size, self.opt.img_size, self.opt.img_size, self.opt.input_nc])
+        self.ym = tf.compat.v1.placeholder(tf.float32,
+                                           [self.opt.batch_size, self.opt.img_size, self.opt.img_size, self.opt.input_nc])
 
-        self.alpha = tf.placeholder(tf.float32, [self.opt.batch_size, 1])
-        self.lr_decay = tf.placeholder(tf.float32, None, name='lr_decay')
+        self.alpha = tf.compat.v1.placeholder(tf.float32, [self.opt.batch_size, 1])
+        self.lr_decay = tf.compat.v1.placeholder(tf.float32, None, name='lr_decay')
 
         self.vgg = Vgg()
 
@@ -46,7 +49,7 @@ class Gaze_GAN(object):
 
         def build_x_model():
             
-            xc = self.x * (1 - self.xm)  # corrputed images
+            xc = self.x * (1 - self.xm)  # corrupted images
             xl_left, xl_right = self.crop_resize(self.x, self.x_left_p, self.x_right_p)
             xl_left_fp = self.Gr(xl_left, use_sp=False)
             xl_right_fp = self.Gr(xl_right, use_sp=False)
@@ -102,11 +105,9 @@ class Gaze_GAN(object):
             return y2x, y2x_left, y2x_right, y2x_fp, y2x_content, y2x_, y2x_fp_, y2x_content_
 
         self.xc, self.xl_left, self.xl_right, self.xo = build_x_model()
-        self.yc, self.yl_left, self.yl_right, self.yl_fp, \
-                self.yl_content, self.yo, self.yo_fp, self.yo_content = build_y_model()
+        self.yc, self.yl_left, self.yl_right, self.yl_fp, self.yl_content, self.yo, self.yo_fp, self.yo_content = build_y_model()
 
-        self.y2x, self.y2x_left, self.y2x_right, self.y2x_fp, self.y2x_content, self.y2x_, \
-                            self.y2x_fp_, self.y2x_content_ = build_yx_model()
+        self.y2x, self.y2x_left, self.y2x_right, self.y2x_fp, self.y2x_content, self.y2x_, self.y2x_fp_, self.y2x_content_ = build_yx_model()
 
         self._xl_left, self._xl_right = self.crop_resize(self.xo, self.x_left_p, self.x_right_p)
         self._yl_left, self._yl_right = self.crop_resize(self.yo, self.y_left_p, self.y_right_p)
@@ -150,8 +151,7 @@ class Gaze_GAN(object):
         self.Dx_loss = self.dx_gan_loss + self.dyx_gan_loss
         self.Dy_loss = self.dy_gan_loss
         self.Gx_loss = self.gx_gan_loss + self.opt.lam_r * self.recon_loss_x + self.opt.lam_p * self.percep_loss_x
-        self.Gy_loss = self.gy_gan_loss + self.gyx_gan_loss + self.opt.lam_r * self.recon_loss_y \
-                       + self.opt.lam_r * self.recon_loss_y_angle + self.recon_fp_content + self.opt.lam_p * self.percep_loss_y
+        self.Gy_loss = self.gy_gan_loss + self.gyx_gan_loss + self.opt.lam_r * self.recon_loss_y + self.opt.lam_r * self.recon_loss_y_angle + self.recon_fp_content + self.opt.lam_p * self.percep_loss_y
 
     def build_test_model(self):
 
@@ -218,9 +218,9 @@ class Gaze_GAN(object):
     def crop_resize(self, input, boxes_left, boxes_right):
 
         shape = [int(item) for item in input.shape.as_list()]
-        return tf.image.crop_and_resize(input, boxes=boxes_left, box_ind=list(range(0, shape[0])),
+        return tf.image.crop_and_resize(input, boxes=boxes_left, box_indices=list(range(0, shape[0])),
                                         crop_size=[int(shape[-3] / 4), int(shape[-2] / 4)]), \
-               tf.image.crop_and_resize(input, boxes=boxes_right, box_ind=list(range(0, shape[0])),
+               tf.image.crop_and_resize(input, boxes=boxes_right, box_indices=list(range(0, shape[0])),
                                         crop_size=[int(shape[-3] / 4), int(shape[-2] / 4)])
 
     def Local_L1(self, l1, l2):
@@ -229,27 +229,28 @@ class Gaze_GAN(object):
         return loss
 
     def test(self):
-        init = tf.global_variables_initializer()
-        config = tf.ConfigProto()
+
+        init = tf.compat.v1.global_variables_initializer()
+        config = tf.compat.v1.ConfigProto()
         config.gpu_options.allow_growth = True
 
-        with tf.Session(config=config) as sess:
+        with tf.compat.v1.Session(config=config) as sess:
 
             sess.run(init)
-            self.saver = tf.train.Saver()
+            self.saver = tf.compat.v1.train.Saver()
 
             ckpt = tf.train.get_checkpoint_state(self.opt.checkpoints_dir)
-            print('Load checkpoint')
+            print('Loading checkpoint...')
             if ckpt and ckpt.model_checkpoint_path:
                 self.saver.restore(sess, ckpt.model_checkpoint_path)
-                print('Load Succeed!')
+                print('Loading successful!')
             else:
-                print('Do not exists any checkpoint, Load Failed!')
+                print('No checkpoint exist, loading failed!')
                 exit()
 
             trainbatch, trainmask, _, _, testbatch, testmask = self.dataset.input()
             coord = tf.train.Coordinator()
-            threads = tf.train.start_queue_runners(sess=sess, coord=coord)
+            threads = tf.compat.v1.train.start_queue_runners(sess=sess, coord=coord)
 
             batch_num = self.opt.test_num
             for j in range(batch_num):
@@ -357,7 +358,7 @@ class Gaze_GAN(object):
 
     def train(self):
 
-        self.t_vars = tf.trainable_variables()
+        self.t_vars = tf.compat.v1.trainable_variables()
         self.dx_vars = [var for var in self.t_vars if 'Dx' in var.name]
         self.dy_vars = [var for var in self.t_vars if 'Dy' in var.name]
         self.gx_vars = [var for var in self.t_vars if 'Gx' in var.name]
@@ -366,31 +367,26 @@ class Gaze_GAN(object):
         self.gr_vars = [var for var in self.t_vars if 'Gr' in var.name]
         self.vgg_vars = [var for var in self.t_vars if 'vgg_16' in var.name]
 
-        assert len(self.t_vars) == len(self.dx_vars + self.dy_vars + self.gx_vars
-                                      + self.gy_vars + self.e_vars + self.gr_vars + self.vgg_vars)
+        assert len(self.t_vars) == len(self.dx_vars + self.dy_vars + self.gx_vars + self.gy_vars + self.e_vars + self.gr_vars + self.vgg_vars)
 
-        self.saver = tf.train.Saver(max_to_keep=10)
-        self.p_saver = tf.train.Saver(self.gr_vars)
-        opti_Dx = tf.train.AdamOptimizer(self.opt.lr_d * self.lr_decay, beta1=self.opt.beta1, beta2=self.opt.beta2). \
-            minimize(loss=self.Dx_loss, var_list=self.dx_vars)
-        opti_Dy = tf.train.AdamOptimizer(self.opt.lr_d * self.lr_decay, beta1=self.opt.beta1, beta2=self.opt.beta2). \
-            minimize(loss=self.Dy_loss, var_list=self.dy_vars)
-        opti_Gx = tf.train.AdamOptimizer(self.opt.lr_g * self.lr_decay, beta1=self.opt.beta1, beta2=self.opt.beta2). \
-            minimize(loss=self.Gx_loss, var_list=self.gx_vars)
-        opti_Gy = tf.train.AdamOptimizer(self.opt.lr_g * self.lr_decay, beta1=self.opt.beta1, beta2=self.opt.beta2). \
-            minimize(loss=self.Gy_loss, var_list=self.gy_vars + self.e_vars)
+        self.saver = tf.compat.v1.train.Saver(max_to_keep=10)
+        self.p_saver = tf.compat.v1.train.Saver(self.gr_vars)
+        opti_Dx = tf.compat.v1.train.AdamOptimizer(self.opt.lr_d * self.lr_decay, beta1=self.opt.beta1, beta2=self.opt.beta2). minimize(loss=self.Dx_loss, var_list=self.dx_vars)
+        opti_Dy = tf.compat.v1.train.AdamOptimizer(self.opt.lr_d * self.lr_decay, beta1=self.opt.beta1, beta2=self.opt.beta2). minimize(loss=self.Dy_loss, var_list=self.dy_vars)
+        opti_Gx = tf.compat.v1.train.AdamOptimizer(self.opt.lr_g * self.lr_decay, beta1=self.opt.beta1, beta2=self.opt.beta2). minimize(loss=self.Gx_loss, var_list=self.gx_vars)
+        opti_Gy = tf.compat.v1.train.AdamOptimizer(self.opt.lr_g * self.lr_decay, beta1=self.opt.beta1, beta2=self.opt.beta2). minimize(loss=self.Gy_loss, var_list=self.gy_vars + self.e_vars)
 
-        init = tf.global_variables_initializer()
-        config = tf.ConfigProto()
+        init = tf.compat.v1.global_variables_initializer()
+        config = tf.compat.v1.ConfigProto()
         config.gpu_options.allow_growth = True
 
-        with tf.Session(config=config) as sess:
+        with tf.compat.v1.Session(config=config) as sess:
 
             sess.run(init)
             start_step = 0
 
             variables_to_restore = slim.get_variables_to_restore(include=['vgg_16'])
-            restorer = tf.train.Saver(variables_to_restore)
+            restorer = tf.compat.v1.train.Saver(variables_to_restore)
             restorer.restore(sess, self.opt.vgg_path)
 
             ckpt = tf.train.get_checkpoint_state(self.opt.checkpoints_dir)
@@ -400,20 +396,18 @@ class Gaze_GAN(object):
             else:
                 try:
                     ckpt = tf.train.get_checkpoint_state(self.opt.pretrain_path)
-                    print(ckpt)
                     self.p_saver.restore(sess, ckpt.model_checkpoint_path)
-                except:
-                    print(" PAM ckpt path may not be correct")
+                except Exception:
+                    raise Exception("PAM checkpoint path seems incorrect")
 
             step = start_step
             lr_decay = 1
 
-            print("Start read dataset")
-            train_images_x, train_eye_pos_x, train_images_y, train_eye_pos_y, \
-                                test_images, test_eye_pos = self.dataset.input()
+            print("Starting to read dataset...")
+            train_images_x, train_eye_pos_x, train_images_y, train_eye_pos_y, test_images, test_eye_pos = self.dataset.input()
 
             coord = tf.train.Coordinator()
-            threads = tf.train.start_queue_runners(sess=sess, coord=coord)
+            threads = tf.compat.v1.train.start_queue_runners(sess=sess, coord=coord)
             real_test_batch, real_test_pos = sess.run([test_images, test_eye_pos])
 
             while step <= self.opt.niter:
@@ -428,8 +422,8 @@ class Gaze_GAN(object):
                 if flip_random > 0.5:
                     x_data = np.flip(x_data, axis=2)
                     y_data = np.flip(y_data, axis=2)
-                    x_p_data[:,0] = self.opt.img_size - x_p_data[:, 0]
-                    x_p_data[:,2] = self.opt.img_size - x_p_data[:, 2]
+                    x_p_data[:, 0] = self.opt.img_size - x_p_data[:, 0]
+                    x_p_data[:, 2] = self.opt.img_size - x_p_data[:, 2]
 
                 xm_data, x_left_p_data, x_right_p_data = self.get_Mask_and_pos(x_p_data)
                 ym_data, y_left_p_data, y_right_p_data = self.get_Mask_and_pos(y_p_data)
@@ -449,15 +443,15 @@ class Gaze_GAN(object):
                 sess.run(opti_Gx, feed_dict=f_d)
                 sess.run(opti_Gy, feed_dict=f_d)
 
-                if step % 500 == 0:
-                    output_loss = sess.run(
-                        [self.Dx_loss + self.Dy_loss, self.Gx_loss, self.Gy_loss, self.opt.lam_r * self.recon_loss_x,
-                         self.opt.lam_r * self.recon_loss_y], feed_dict=f_d)
-                    print(
-                        "step %d D_loss=%.4f, Gx_loss=%.4f, Gy_loss=%.4f, Recon_loss_x=%.4f, Recon_loss_y=%.4f, lr_decay=%.4f" %
-                        (
-                            step, output_loss[0], output_loss[1], output_loss[2], output_loss[3], output_loss[4],
-                            lr_decay))
+                if np.mod(step, self.opt.niter_report_progress) == 0:
+                    output_loss = sess.run([self.Dx_loss + self.Dy_loss,
+                                            self.Gx_loss, self.Gy_loss,
+                                            self.opt.lam_r * self.recon_loss_x,
+                                            self.opt.lam_r * self.recon_loss_y],
+                                            feed_dict=f_d)
+
+                    print("%s: step %d D_loss=%.4f, Gx_loss=%.4f, Gy_loss=%.4f, Recon_loss_x=%.4f, Recon_loss_y=%.4f, lr_decay=%.4f" %
+                          (datetime.now(), step, output_loss[0], output_loss[1], output_loss[2], output_loss[3], output_loss[4], lr_decay))
 
                 if np.mod(step, 2000) == 0:
                     o_list = sess.run([self.xl_left, self.xl_right, self.xc, self.xo,
@@ -465,6 +459,7 @@ class Gaze_GAN(object):
                                        self.y2x, self.y2x_], feed_dict=f_d)
 
                     batch_masks, batch_left_eye_pos, batch_right_eye_pos = self.get_Mask_and_pos(real_test_pos)
+
                     # for test
                     f_d = {self.x: real_test_batch, self.xm: batch_masks,
                            self.x_left_p: batch_left_eye_pos, self.x_right_p: batch_right_eye_pos,
@@ -485,21 +480,20 @@ class Gaze_GAN(object):
                     save_images(test_trans,
                                 '{}/{:02d}_te_{}.jpg'.format(self.opt.sample_dir, step, self.opt.exper_name))
 
-                if np.mod(step, 20000) == 0:
+                if np.mod(step, self.opt.niter_save) == 0:
                     self.saver.save(sess, os.path.join(self.opt.checkpoints_dir, 'model_{:06d}.ckpt'.format(step)))
 
                 step += 1
 
             save_path = self.saver.save(sess, os.path.join(self.opt.checkpoints_dir, 'model_{:06d}.ckpt'.format(step)))
-            # summary_writer.close()
 
             coord.request_stop()
             coord.join(threads)
 
             print("Model saved in file: %s" % save_path)
 
-    def Transpose(self, list):
-        refined_list = np.transpose(np.array(list), axes=[1, 2, 0, 3, 4])
+    def Transpose(self, a_list):
+        refined_list = np.transpose(np.array(a_list), axes=[1, 2, 0, 3, 4])
         refined_list = np.reshape(refined_list, [refined_list.shape[0] * refined_list.shape[1],
                                                  refined_list.shape[2] * refined_list.shape[3], -1])
         return refined_list
@@ -507,7 +501,7 @@ class Gaze_GAN(object):
     def D(self, x, xl_left, xl_right, scope='D'):
 
         fc = functools.partial(fully_connect, use_sp=self.opt.use_sp)
-        with tf.variable_scope(scope, reuse=tf.AUTO_REUSE):
+        with tf.compat.v1.variable_scope(scope, reuse=tf.compat.v1.AUTO_REUSE):
             xg_fp = self.global_d(x)
             xl_fp = self.local_d(tf.concat([xl_left, xl_right], axis=-1))
             # Concatenation
@@ -521,7 +515,7 @@ class Gaze_GAN(object):
 
         conv2d_base = functools.partial(conv2d, use_sp=self.opt.use_sp)
         fc = functools.partial(fully_connect, use_sp=self.opt.use_sp)
-        with tf.variable_scope("d1", reuse=tf.AUTO_REUSE):
+        with tf.compat.v1.variable_scope("d1", reuse=tf.compat.v1.AUTO_REUSE):
             for i in range(self.opt.n_layers_d):
                 output_dim = np.minimum(self.opt.ndf * np.power(2, i + 1), 512)
                 x = lrelu(conv2d_base(x, output_dim=output_dim, scope='d{}'.format(i)))
@@ -533,7 +527,7 @@ class Gaze_GAN(object):
 
         conv2d_base = functools.partial(conv2d, use_sp=self.opt.use_sp)
         fc = functools.partial(fully_connect, use_sp=self.opt.use_sp)
-        with tf.variable_scope("d2", reuse=tf.AUTO_REUSE):
+        with tf.compat.v1.variable_scope("d2", reuse=tf.compat.v1.AUTO_REUSE):
             # Global Discriminator Dg
             for i in range(self.opt.n_layers_d):
                 dim = np.minimum(self.opt.ndf * np.power(2, i + 1), 256)
@@ -549,7 +543,7 @@ class Gaze_GAN(object):
         conv2d_base = functools.partial(conv2d, kernel=4, stride=2, use_sp=use_sp)
         fc = functools.partial(fully_connect, use_sp=use_sp)
         conv2d_final = functools.partial(conv2d, kernel=7, stride=1, use_sp=use_sp, output_dim=self.opt.output_nc)
-        with tf.variable_scope("Gy", reuse=tf.AUTO_REUSE):
+        with tf.compat.v1.variable_scope("Gy", reuse=tf.compat.v1.AUTO_REUSE):
 
             x = tf.concat([input_x, img_mask], axis=3)
             u_fp_list = []
@@ -585,7 +579,7 @@ class Gaze_GAN(object):
         conv2d_base = functools.partial(conv2d, kernel=4, stride=2, use_sp=use_sp)
         fc = functools.partial(fully_connect, use_sp=use_sp)
         conv2d_final = functools.partial(conv2d, kernel=7, stride=1, use_sp=use_sp, output_dim=self.opt.output_nc)
-        with tf.variable_scope("Gx", reuse=tf.AUTO_REUSE):
+        with tf.compat.v1.variable_scope("Gx", reuse=tf.compat.v1.AUTO_REUSE):
 
             x = tf.concat([input_x, img_mask], axis=3)
             u_fp_list = []
@@ -614,11 +608,11 @@ class Gaze_GAN(object):
             return input_x + tf.nn.tanh(de_x) * img_mask
 
     def Gr(self, input_x, use_sp=False):
-        print(input_x.shape)
+        # print(input_x.shape)
         conv2d_first = functools.partial(conv2d, kernel=7, stride=1, use_sp=use_sp)
         conv2d_base = functools.partial(conv2d, kernel=4, stride=2, use_sp=use_sp)
         fc = functools.partial(fully_connect, use_sp=use_sp)
-        with tf.variable_scope("Gr", reuse=tf.AUTO_REUSE):
+        with tf.compat.v1.variable_scope("Gr", reuse=tf.compat.v1.AUTO_REUSE):
             x = input_x
             x = lrelu(IN(conv2d_first(x, output_dim=self.opt.ngf, scope='conv'), scope='IN'))
             for i in range(self.opt.n_layers_r):
@@ -634,7 +628,7 @@ class Gaze_GAN(object):
 
         conv2d_first = functools.partial(conv2d, kernel=7, stride=1)
         conv2d_base = functools.partial(conv2d, kernel=4, stride=2)
-        with tf.variable_scope("encode", reuse=tf.AUTO_REUSE):
+        with tf.compat.v1.variable_scope("encode", reuse=tf.compat.v1.AUTO_REUSE):
             nef = self.opt.nef
             x = tf.nn.relu(IN(conv2d_first(x, output_dim=nef, scope='e_c1'), scope='e_in1'))
             for i in range(self.opt.n_layers_e):
@@ -647,25 +641,25 @@ class Gaze_GAN(object):
 
     def get_Mask_and_pos(self, eye_pos):
 
-        def get_pos(eye_pos):
+        def get_pos(i_eye_pos):
             o_eye_pos = np.zeros(shape=(self.opt.batch_size, 4), dtype=np.int32)
-            o_eye_pos[:, 3] = (eye_pos[:, 0] + self.opt.crop_w / 2)
-            o_eye_pos[:, 2] = (eye_pos[:, 1] + self.opt.crop_h / 2)
-            o_eye_pos[:, 1] = (eye_pos[:, 0] - self.opt.crop_w / 2)
-            o_eye_pos[:, 0] = (eye_pos[:, 1] - self.opt.crop_h / 2)
+            o_eye_pos[:, 3] = (i_eye_pos[:, 0] + self.opt.crop_w / 2)
+            o_eye_pos[:, 2] = (i_eye_pos[:, 1] + self.opt.crop_h / 2)
+            o_eye_pos[:, 1] = (i_eye_pos[:, 0] - self.opt.crop_w / 2)
+            o_eye_pos[:, 0] = (i_eye_pos[:, 1] - self.opt.crop_h / 2)
 
             return o_eye_pos
 
-        def get_Mask(left_eye_pos, right_eye_pos):
+        def get_Mask(i_left_eye_pos, i_right_eye_pos):
             batch_mask = np.zeros(shape=(self.opt.batch_size, self.opt.img_size, self.opt.img_size, self.opt.output_nc))
             # x, y = np.meshgrid(range(img_size), range(img_size))
             for i in range(self.opt.batch_size):
                 batch_mask[i,
-                left_eye_pos[i][0]:left_eye_pos[i][2],
-                left_eye_pos[i][1]:left_eye_pos[i][3], :] = 1
+                i_left_eye_pos[i][0]:i_left_eye_pos[i][2],
+                i_left_eye_pos[i][1]:i_left_eye_pos[i][3], :] = 1
                 batch_mask[i,
-                right_eye_pos[i][0]:right_eye_pos[i][2],
-                right_eye_pos[i][1]:right_eye_pos[i][3], :] = 1
+                i_right_eye_pos[i][0]:i_right_eye_pos[i][2],
+                i_right_eye_pos[i][1]:i_right_eye_pos[i][3], :] = 1
 
             return batch_mask
 
@@ -675,7 +669,3 @@ class Gaze_GAN(object):
 
         return mask, left_eye_pos / float(self.opt.img_size), \
                right_eye_pos / float(self.opt.img_size)
-
-
-
-
